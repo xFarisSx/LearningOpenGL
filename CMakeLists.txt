@@ -14,6 +14,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/CppProjectBuild)
 include_directories(
     include
     glad/include
+    src
 )
 
 # Source files
