@@ -8,7 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
 # Set custom executable output dir
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/CppProjectBuild)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/Builds/CppProjectBuild)
 
 # Include dirs
 include_directories(
