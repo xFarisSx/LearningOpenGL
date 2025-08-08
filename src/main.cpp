@@ -13,6 +13,7 @@
 #include "VBO.h"
 #include "shaderClass.h"
 #include "textureClass.h"
+#include "camera.h"
 
  int width = 800;
  int height = 800;
@@ -41,7 +42,7 @@ GLuint indices[] =
 };
 int main() {
 
-  // Init GLFW
+  // Init GLFW 
   glfwInit();
 
   // Tell GLFW what version of OpenGL we are using (3.3)
@@ -57,7 +58,7 @@ int main() {
     std::cout << "Failed to create window" << std::endl;
     glfwTerminate();
     return -1;
-  }
+  } 
 
   // Introduce the window into the current context
   glfwMakeContextCurrent(window);
@@ -67,7 +68,6 @@ int main() {
   
   glfwGetFramebufferSize(window, &swidth, &sheight);
   glViewport(0, 0, swidth, sheight);
-  std::cout << "Window size: " << width << " x " << height << std::endl;
 
   Shader shaderProgram("../shaders/vertexShader.vert",
                        "../shaders/fragmentShader.frag");
@@ -88,51 +88,28 @@ int main() {
   VBO1.Unbind();
   EBO1.Unbind();
 
-  GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
-
 
   Texture cat("../assets/textures/cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
   cat.texUnit(shaderProgram,"tex0", 0); 
 
-  float rotation = 0.0f;
-  double prevTime = glfwGetTime();
 
   glEnable(GL_DEPTH_TEST);
+
+  Camera camera (swidth, sheight, glm::vec3(0,0,2.f));
 
   // Main while loop
   while (!glfwWindowShouldClose(window)) {
     // GLFW events
     glfwPollEvents();
+    camera.Inputs(window);
 
     glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shaderProgram.Activate();
+  
+    camera.Matrix(45.0f, 0.1f, 100.f, shaderProgram, "camMatrix");
 
-    double crntTime= glfwGetTime();
-    if(crntTime-prevTime >= 1.f/60.f)
-    {
-      rotation+=0.5f;
-      prevTime = crntTime;
-    }
-
-    
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 proj = glm::mat4(1.0f);
-
-    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-    view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
-    proj = glm::perspective(glm::radians(45.0f), (float)(swidth/sheight), 0.1f, 100.0f);
-    
-    int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
-    int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
-    int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
-
-    glUniform1f(uniID, 0.f);
     cat.Bind();
 
     VAO1.Bind();
