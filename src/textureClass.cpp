@@ -17,7 +17,7 @@ Texture::Texture(const char *image, GLenum texType, GLenum slot, GLenum format,
   glActiveTexture(slot);
   glBindTexture(texType, ID);
 
-  // Filters and wrap
+  // Filters and wrap 
   glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -37,7 +37,7 @@ Texture::Texture(const char *image, GLenum texType, GLenum slot, GLenum format,
   glBindTexture(texType, 0);
 }
 
-void Texture::texUnit(Shader shader, const char *uniform, GLuint unit) {
+void Texture::texUnit(Shader& shader, const char *uniform, GLuint unit) {
     GLuint tex0Uni = glGetUniformLocation(shader.ID, uniform);
   shader.Activate();
   glUniform1i(tex0Uni, unit);
