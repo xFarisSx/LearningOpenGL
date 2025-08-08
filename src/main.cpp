@@ -1,6 +1,7 @@
 #include <cmath>
 #include <glad/glad.h>
 
+#include "stb_image.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 
@@ -8,22 +9,40 @@
 #include "VAO.h"
 #include "VBO.h"
 #include "shaderClass.h"
+#include "textureClass.h"
+
+// GLfloat vertices[] = {
+//     // Positions                               // Colors
+//     -0.5f,     -0.5f * float(sqrt(3.0f)) / 3.0f,       0.0f, 0.8f, 0.3f,
+//     0.02f, 0.5f,      -0.5f * float(sqrt(3.0f)) / 3.0f,       0.0f, 0.8f,
+//     0.3f,  0.02f,
+//
+//     0.0f,      0.5f * float(sqrt(3.0f)) * 2.0f / 3.0f, 0.0f, 1.0f, 0.6f,
+//     0.32f,
+//
+//     -0.5f / 2, 0.5f * float(sqrt(3.0f)) / 6.0f,        0.0f, 0.9f, 0.45f,
+//     0.17f,
+//
+//     0.5f / 2,  0.5f * float(sqrt(3.0f)) / 6.0f,        0.0f, 0.9f, 0.45f,
+//     0.17f,
+//
+//     0.0f,      -0.5f * float(sqrt(3.0f)) / 3.0f,       0.0f, 0.8f, 0.3f,
+//     0.02f,
+// };
 
 GLfloat vertices[] = {
-    // Positions                               // Colors
-    -0.5f,     -0.5f * float(sqrt(3.0f)) / 3.0f,       0.0f, 0.8f, 0.3f,  0.02f,
-    0.5f,      -0.5f * float(sqrt(3.0f)) / 3.0f,       0.0f, 0.8f, 0.3f,  0.02f,
+    -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+    -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 
-    0.0f,      0.5f * float(sqrt(3.0f)) * 2.0f / 3.0f, 0.0f, 1.0f, 0.6f,  0.32f,
+    0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
 
-    -0.5f / 2, 0.5f * float(sqrt(3.0f)) / 6.0f,        0.0f, 0.9f, 0.45f, 0.17f,
+    0.5f,  -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
 
-    0.5f / 2,  0.5f * float(sqrt(3.0f)) / 6.0f,        0.0f, 0.9f, 0.45f, 0.17f,
-
-    0.0f,      -0.5f * float(sqrt(3.0f)) / 3.0f,       0.0f, 0.8f, 0.3f,  0.02f,
 };
 
-GLuint indices[] = {0, 3, 5, 3, 2, 4, 5, 4, 1};
+GLuint indices[] = {
+    0, 2, 1, 0, 3, 2,
+};
 
 int main() {
 
@@ -55,9 +74,6 @@ int main() {
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
 
-  // Specify the viewport of OpenGL in the Window
-  glViewport(0, 0, width, height);
-
   Shader shaderProgram("../shaders/vertexShader.vert",
                        "../shaders/fragmentShader.frag");
 
@@ -67,9 +83,11 @@ int main() {
   VBO VBO1(vertices, sizeof(vertices));
   EBO EBO1(indices, sizeof(indices));
 
-  VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void *)0);
-  VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float),
+  VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void *)0);
+  VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float),
                   (void *)(3 * sizeof(float)));
+  VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float),
+                  (void *)(6 * sizeof(float)));
 
   VAO1.Unbind();
   VBO1.Unbind();
@@ -77,12 +95,9 @@ int main() {
 
   GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 
-  // Specify color of background
-  glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-  // Clean the back buffer
-  glClear(GL_COLOR_BUFFER_BIT);
-  // Swap the back buffer with front buffer
-  glfwSwapBuffers(window);
+
+  Texture cat("../assets/textures/cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+  cat.texUnit(shaderProgram,"tex0", 0); 
 
   // Main while loop
   while (!glfwWindowShouldClose(window)) {
@@ -94,9 +109,10 @@ int main() {
 
     shaderProgram.Activate();
     glUniform1f(uniID, 0.f);
+    cat.Bind();
 
     VAO1.Bind();
-    glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(window);
   }
@@ -104,6 +120,7 @@ int main() {
   VAO1.Delete();
   VBO1.Delete();
   EBO1.Delete();
+  cat.Delete();
   shaderProgram.Delete();
 
   glfwDestroyWindow(window);
