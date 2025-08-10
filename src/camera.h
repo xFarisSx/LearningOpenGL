@@ -30,11 +30,12 @@ public:
   float lastY;
   float yaw = -90.0f; // initialize looking toward -Z
   float pitch = 0.0f;
+  glm::mat4 cameraMatrix = glm::mat4(1.f);
 
   Camera(int width, int height, glm::vec3 position);
 
-  void Matrix(float FOVdeg, float nearPlane, float farPlane, Shader &shader,
-              const char *uniform);
+  void Matrix( Shader &shader,  const char *uniform);
+  void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
   void Inputs(GLFWwindow *window);
 };
 
