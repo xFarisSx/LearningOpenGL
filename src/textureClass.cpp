@@ -1,9 +1,10 @@
 #include "textureClass.h"
 
-Texture::Texture(const char *image, GLenum texType, GLenum slot, GLenum format,
+Texture::Texture(const char *image, GLenum texType, GLuint slot, GLenum format,
                  GLenum pixelType) {
 
   type = texType;
+  unit = slot;
 
   int widthImg, heightImg, numColCh;
   stbi_set_flip_vertically_on_load(true);
@@ -14,7 +15,7 @@ Texture::Texture(const char *image, GLenum texType, GLenum slot, GLenum format,
   }
 
   glGenTextures(1, &ID);
-  glActiveTexture(slot);
+  glActiveTexture(GL_TEXTURE0+slot);
   glBindTexture(texType, ID);
 
   // Filters and wrap 
@@ -43,6 +44,7 @@ void Texture::texUnit(Shader& shader, const char *uniform, GLuint unit) {
   glUniform1i(tex0Uni, unit);
 }
 void Texture::Bind() {
+  glActiveTexture(GL_TEXTURE0+unit);
   glBindTexture(type, ID);
 }
 void Texture::unBind() {
